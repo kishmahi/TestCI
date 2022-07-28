@@ -1,17 +1,13 @@
-FROM openjdk:8-jdk-alpine
+# syntax=docker/dockerfile:1
 
-ARG JAR_FILE=target/spring-petclinic-1.0.jar
-ARG JAR_LIB_FILE=target/lib/
+FROM openjdk:16-alpine3.13
 
-# cd /usr/local/runme
-WORKDIR /usr/local/runme
+WORKDIR /app
 
-# copy target/find-links.jar /usr/local/runme/app.jar
-COPY ${JAR_FILE} app.jar
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
 
-# copy project dependencies
-# cp -rf target/lib/  /usr/local/runme/lib
-ADD ${JAR_LIB_FILE} lib/
+COPY src ./src
 
-# java -jar /usr/local/runme/app.jar
-ENTRYPOINT ["java","-jar","app.jar", "--spring.profiles.active=mysql"]
+CMD ["./mvnw", "spring-boot:run"]
